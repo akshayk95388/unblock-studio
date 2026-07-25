@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { SavedReelItem } from '../types/history';
 import { History, Play, Download, ExternalLink, RefreshCw, Copy, Check, FileAudio, Video, Sparkles } from 'lucide-react';
+import { getPlayableAudioUrl } from '../utils/audioResolver';
 
 interface Props {
   historyItems: SavedReelItem[];
@@ -25,7 +26,7 @@ export const HistoryGallery: React.FC<Props> = ({
     };
   }, [audioObj]);
 
-  const handlePlayAudio = (id: string, audioUrl: string) => {
+  const handlePlayAudio = async (id: string, audioUrl: string) => {
     if (!audioUrl) {
       alert('Audio track URL not available for this session.');
       return;
@@ -41,14 +42,19 @@ export const HistoryGallery: React.FC<Props> = ({
       audioObj.pause();
     }
 
-    const newAudio = new Audio(audioUrl);
-    newAudio.play().catch(console.error);
-    setAudioObj(newAudio);
-    setPlayingAudioId(id);
+    try {
+      const playableUrl = await getPlayableAudioUrl(audioUrl);
+      const newAudio = new Audio(playableUrl);
+      newAudio.play().catch(console.error);
+      setAudioObj(newAudio);
+      setPlayingAudioId(id);
 
-    newAudio.onended = () => {
-      setPlayingAudioId(null);
-    };
+      newAudio.onended = () => {
+        setPlayingAudioId(null);
+      };
+    } catch (err) {
+      console.error('Failed to play audio track:', err);
+    }
   };
 
   const handleCopyCaption = (id: string, stressor: string) => {

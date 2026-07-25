@@ -4,6 +4,7 @@ import path from 'path';
 interface FetchOptions {
   stressor: string;
   durationCategory?: string;
+  durationMins?: number;
   voice?: string;
   music?: string;
   apiUrl?: string;

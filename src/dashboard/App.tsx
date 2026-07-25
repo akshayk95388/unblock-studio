@@ -8,6 +8,7 @@ import { HistoryGallery } from './components/HistoryGallery';
 import { VerticalReelProps, VideoStyleConfig } from '../remotion/types';
 import { SavedReelItem } from './types/history';
 import { defaultReelProps } from '../remotion/Root';
+import { getPlayableAudioUrl } from './utils/audioResolver';
 
 const STORAGE_KEY = 'unblock_studio_saved_reels';
 
@@ -19,7 +20,7 @@ export const App: React.FC = () => {
   const [reelProps, setReelProps] = useState<VerticalReelProps>(defaultReelProps);
   const [savedReels, setSavedReels] = useState<SavedReelItem[]>([]);
 
-  // Load local history on mount
+  // Load local history on mount & sync with backend API history
   useEffect(() => {
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
@@ -29,6 +30,7 @@ export const App: React.FC = () => {
     } catch (e) {
       console.warn('Could not load local history:', e);
     }
+    handleRefreshApiHistory();
   }, []);
 
   // Save history updates to localStorage
@@ -170,8 +172,19 @@ export const App: React.FC = () => {
     }, 2000);
   };
 
-  const handleSelectReelFromHistory = (item: SavedReelItem) => {
-    setReelProps(item.reelProps);
+  const handleSelectReelFromHistory = async (item: SavedReelItem) => {
+    let playableAudioUrl = item.reelProps.audioUrl;
+    if (item.reelProps.audioUrl) {
+      try {
+        playableAudioUrl = await getPlayableAudioUrl(item.reelProps.audioUrl);
+      } catch (err) {
+        console.warn('Failed to resolve audio URL:', err);
+      }
+    }
+    setReelProps({
+      ...item.reelProps,
+      audioUrl: playableAudioUrl,
+    });
     setActiveTab('single');
   };
 

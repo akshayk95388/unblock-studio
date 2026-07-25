@@ -25,10 +25,11 @@ async function renderVideoReel() {
   });
 
   console.log('[Unblock Studio] Selecting composition "VerticalReel"...');
+  const inputProps = defaultReelProps as unknown as Record<string, unknown>;
   const composition = await selectComposition({
     serveUrl: bundled,
     id: 'VerticalReel',
-    inputProps: defaultReelProps,
+    inputProps,
   });
 
   console.log('[Unblock Studio] Rendering 1080x1920 MP4 file to:', outputPath);
@@ -37,8 +38,7 @@ async function renderVideoReel() {
     serveUrl: bundled,
     codec: 'h264',
     outputLocation: outputPath,
-    inputProps: defaultReelProps,
-    durationInFrames,
+    inputProps,
   });
 
   console.log('[Unblock Studio] Render completed successfully! Full Video saved to:', outputPath);

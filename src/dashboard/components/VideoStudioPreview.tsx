@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Player } from '@remotion/player';
 import { VerticalReel } from '../../remotion/compositions/VerticalReel';
 import { VerticalReelProps, VideoStyleConfig, getDimensions } from '../../remotion/types';
+import { getPlayableAudioUrl } from '../utils/audioResolver';
 import { Sliders, Download, Palette, Type, AlignCenter, Activity, FileAudio, FileText, CheckCircle2, Video, Clock, RefreshCw, Monitor, AlertCircle, Zap } from 'lucide-react';
 
 interface Props {
@@ -169,7 +170,8 @@ export const VideoStudioPreview: React.FC<Props> = ({
 
     try {
       const apiKey = import.meta.env.VITE_API_KEY || 'test-key';
-      const res = await fetch(reelProps.audioUrl, {
+      const playableUrl = await getPlayableAudioUrl(reelProps.audioUrl);
+      const res = await fetch(playableUrl, {
         headers: { 'Authorization': `Bearer ${apiKey}` },
       });
 
@@ -189,8 +191,9 @@ export const VideoStudioPreview: React.FC<Props> = ({
       console.warn('Audio download fetch error:', e);
     }
 
+    const playableUrl = await getPlayableAudioUrl(reelProps.audioUrl);
     const a = document.createElement('a');
-    a.href = reelProps.audioUrl;
+    a.href = playableUrl;
     a.target = '_blank';
     a.download = 'unblock_mastered_audio.mp3';
     document.body.appendChild(a);
@@ -247,11 +250,10 @@ export const VideoStudioPreview: React.FC<Props> = ({
               <h3 className="text-base font-bold text-[#e5e2e3]">Composition & Format Controls</h3>
             </div>
             <div className="flex items-center gap-2">
-              <span className={`text-xs px-2.5 py-1 rounded-full font-mono border flex items-center gap-1 ${
-                isTestMode15s
-                  ? 'bg-amber-500/20 text-amber-300 border-amber-500/40'
-                  : 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30'
-              }`}>
+              <span className={`text-xs px-2.5 py-1 rounded-full font-mono border flex items-center gap-1 ${isTestMode15s
+                ? 'bg-amber-500/20 text-amber-300 border-amber-500/40'
+                : 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30'
+                }`}>
                 {isTestMode15s ? <Zap className="w-3 h-3 text-amber-400" /> : <Clock className="w-3 h-3 text-emerald-400" />}
                 {effectiveDurationSeconds}s {isTestMode15s ? 'Quick 15s Test' : 'Full Track'}
               </span>
