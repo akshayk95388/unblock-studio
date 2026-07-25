@@ -1,0 +1,33 @@
+{
+  "name": "unblock-studio",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --port 3001",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "studio": "remotion studio src/remotion/index.ts",
+    "render": "tsc scripts/render-video.ts --moduleResolution node && node scripts/render-video.js",
+    "fetch-audio": "tsc scripts/fetch-audio.ts --moduleResolution node && node scripts/fetch-audio.js"
+  },
+  "dependencies": {
+    "@remotion/cli": "^4.0.180",
+    "@remotion/media-utils": "^4.0.180",
+    "@remotion/player": "^4.0.180",
+    "lucide-react": "^0.469.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "remotion": "^4.0.180"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.3.3",
+    "@types/node": "^22.10.1",
+    "@types/react": "^18.3.18",
+    "@types/react-dom": "^18.3.5",
+    "@vitejs/plugin-react": "^4.3.4",
+    "tailwindcss": "^4.3.3",
+    "typescript": "^5.7.2",
+    "vite": "^6.0.3"
+  }
+}
