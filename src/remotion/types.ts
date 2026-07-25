@@ -23,6 +23,20 @@ export type BgModeType =
 
 export type AspectRatioType = '9:16' | '16:9' | '16:9_4k' | '1:1';
 
+export type OverlayEffectType =
+  | 'none'
+  | 'ambient_particles'
+  | 'glowing_orbs'
+  | 'cosmic_dust'
+  | 'light_leaks';
+
+export interface OverlayConfig {
+  effect: OverlayEffectType;
+  startInSeconds: number;
+  durationInSeconds: number;
+  opacity: number;
+}
+
 export interface VideoStyleConfig {
   bgMode: BgModeType;
   aspectRatio: AspectRatioType;
@@ -35,6 +49,7 @@ export interface VideoStyleConfig {
   showWatermark: boolean;
   watermarkText: string;
   testMode15s?: boolean;
+  overlayConfig?: OverlayConfig;
 }
 
 export interface VerticalReelProps {

@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { Player } from '@remotion/player';
 import { VerticalReel } from '../../remotion/compositions/VerticalReel';
-import { VerticalReelProps, VideoStyleConfig, getDimensions } from '../../remotion/types';
+import { VerticalReelProps, VideoStyleConfig, OverlayEffectType, getDimensions } from '../../remotion/types';
 import { getPlayableAudioUrl } from '../utils/audioResolver';
-import { Sliders, Download, Palette, Type, AlignCenter, Activity, FileAudio, FileText, CheckCircle2, Video, Clock, RefreshCw, Monitor, AlertCircle, Zap } from 'lucide-react';
+import { Sliders, Download, Palette, Type, AlignCenter, Activity, FileAudio, FileText, CheckCircle2, Video, Clock, RefreshCw, Monitor, AlertCircle, Zap, Sparkles, Layers, Flame } from 'lucide-react';
 
 interface Props {
   reelProps: VerticalReelProps;
@@ -396,6 +396,75 @@ export const VideoStudioPreview: React.FC<Props> = ({
                 Watermark
               </label>
             </div>
+          </div>
+        </div>
+
+        {/* ── Motion & Animation Overlays Box ── */}
+        <div className="glass-panel rounded-2xl p-5 border border-[rgba(87,66,56,0.25)] space-y-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Sparkles className="w-4 h-4 text-[#ffb692]" />
+              <h4 className="text-xs font-bold text-[#e5e2e3]">Motion & Animation Overlays</h4>
+            </div>
+            <span className="text-[10px] font-mono text-[#ffb692] bg-[#ffb692]/10 px-2 py-0.5 rounded-full border border-[#ffb692]/20 capitalize">
+              {styleConfig.overlayConfig?.effect || 'none'}
+            </span>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-[11px] font-medium text-[#dec0b3] mb-1.5">
+                Visual Overlay Effect
+              </label>
+              <select
+                value={styleConfig.overlayConfig?.effect || 'none'}
+                onChange={(e) => {
+                  setLastDownloadUrl(null);
+                  onStyleChange({
+                    overlayConfig: {
+                      effect: e.target.value as OverlayEffectType,
+                      startInSeconds: styleConfig.overlayConfig?.startInSeconds || 0,
+                      durationInSeconds: styleConfig.overlayConfig?.durationInSeconds || (reelProps.durationInSeconds || 15),
+                      opacity: styleConfig.overlayConfig?.opacity ?? 0.6,
+                    },
+                  });
+                }}
+                className="w-full glass-input rounded-xl px-3 py-2 text-xs cursor-pointer"
+              >
+                <option value="none" className="bg-[#1c1b1c]">🚫 None (Clean Background)</option>
+                <option value="ambient_particles" className="bg-[#1c1b1c]">✨ Ambient Floating Particles</option>
+                <option value="glowing_orbs" className="bg-[#1c1b1c]">🔮 Pulsating Glowing Bokeh Orbs</option>
+                <option value="cosmic_dust" className="bg-[#1c1b1c]">🌌 Swirling Cosmic Dust</option>
+                <option value="light_leaks" className="bg-[#1c1b1c]">🎞️ Vintage Film Light Leaks</option>
+              </select>
+            </div>
+
+            {styleConfig.overlayConfig?.effect !== 'none' && (
+              <div>
+                <label className="block text-[11px] font-medium text-[#dec0b3] mb-1 flex justify-between">
+                  <span>Overlay Opacity:</span>
+                  <span className="font-mono text-[#ffb692]">{Math.round((styleConfig.overlayConfig?.opacity ?? 0.6) * 100)}%</span>
+                </label>
+                <input
+                  type="range"
+                  min={0.1}
+                  max={1.0}
+                  step={0.05}
+                  value={styleConfig.overlayConfig?.opacity ?? 0.6}
+                  onChange={(e) => {
+                    onStyleChange({
+                      overlayConfig: {
+                        effect: styleConfig.overlayConfig?.effect || 'ambient_particles',
+                        startInSeconds: styleConfig.overlayConfig?.startInSeconds || 0,
+                        durationInSeconds: styleConfig.overlayConfig?.durationInSeconds || 15,
+                        opacity: parseFloat(e.target.value),
+                      },
+                    });
+                  }}
+                  className="w-full accent-[#ffb692] cursor-pointer mt-2"
+                />
+              </div>
+            )}
           </div>
         </div>
 

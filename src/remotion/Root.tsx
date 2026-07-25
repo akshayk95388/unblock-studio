@@ -73,6 +73,12 @@ export const defaultReelProps: VerticalReelProps = {
     showWaveform: true,
     showWatermark: true,
     watermarkText: 'UNBLOCK FOCUS APP',
+    overlayConfig: {
+      effect: 'none',
+      startInSeconds: 0,
+      durationInSeconds: 15,
+      opacity: 0.6,
+    },
   },
 };
 
