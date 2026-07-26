@@ -9,6 +9,7 @@ interface Props {
 }
 
 const PRESET_STRESSORS = [
+  'Stuck on pricing strategy and overthinking competitors',
   'Imposter syndrome before presenting to executive leadership',
   'Late-night overthinking preventing restful sleep',
   'Coding fatigue & writer\'s block during deadline crunch',
@@ -22,6 +23,7 @@ export const GeneratorSection: React.FC<Props> = ({
   setIsLoading,
 }) => {
   const [stressor, setStressor] = useState(PRESET_STRESSORS[0]);
+  const [presetMode, setPresetMode] = useState<'guided' | 'unblock_reel'>('guided');
   const [durationCategory, setDurationCategory] = useState<'quick' | 'deep'>('quick');
   const [voice, setVoice] = useState('gentle_female');
   const [music, setMusic] = useState('ambient_meditation');
@@ -47,20 +49,27 @@ export const GeneratorSection: React.FC<Props> = ({
       const apiKey = import.meta.env.VITE_API_KEY || 'test-key';
       const backendUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
+      const payload: Record<string, any> = {
+        stressor,
+        voice,
+        music,
+        include_words_ts: true,
+      };
+
+      if (presetMode === 'guided') {
+        payload.duration_category = durationCategory;
+        payload.duration_mins = durationCategory === 'deep' ? 3 : 1;
+      } else {
+        payload.preset = 'unblock_reel';
+      }
+
       const res = await fetch(`${backendUrl}/api/generate`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${apiKey}`,
         },
-        body: JSON.stringify({
-          stressor,
-          duration_category: durationCategory,
-          duration_mins: durationCategory === 'deep' ? 3 : 1,
-          voice,
-          music,
-          include_words_ts: true,
-        }),
+        body: JSON.stringify(payload),
       });
 
       if (!res.ok) {
@@ -256,6 +265,57 @@ export const GeneratorSection: React.FC<Props> = ({
         <span className="text-xs text-[#dec0b3]/70">Endpoint: POST /api/generate</span>
       </div>
 
+      {/* Content Format & Preset Mode Selector */}
+      <div>
+        <label className="block text-xs font-semibold uppercase tracking-wider text-[#dec0b3] mb-2 flex items-center justify-between">
+          <span>Generation Preset Mode</span>
+          <span className="text-[10px] font-mono text-[#ffb692] bg-[#ffb692]/10 px-2 py-0.5 rounded-full border border-[#ffb692]/20">
+            {presetMode === 'unblock_reel' ? 'preset: "unblock_reel"' : 'Default Guided Session'}
+          </span>
+        </label>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
+          <button
+            type="button"
+            onClick={() => setPresetMode('guided')}
+            className={`p-3.5 rounded-xl border text-left transition-all cursor-pointer flex flex-col justify-between ${
+              presetMode === 'guided'
+                ? 'bg-[#ffb692]/15 border-[#ffb692] text-[#ffb692] shadow-lg shadow-[#ffb692]/10'
+                : 'bg-[#1c1b1c] border-[rgba(87,66,56,0.2)] text-[#dec0b3]/70 hover:border-[rgba(87,66,56,0.4)] hover:text-white'
+            }`}
+          >
+            <div className="flex items-center justify-between mb-1">
+              <span className="font-bold text-xs flex items-center gap-1.5 text-white">
+                🧘 Guided Meditation Session
+              </span>
+              {presetMode === 'guided' && <CheckCircle2 className="w-4 h-4 text-[#ffb692]" />}
+            </div>
+            <span className="text-[11px] text-[#dec0b3]/80 leading-relaxed">
+              Standard calm meditation session format (preset omitted)
+            </span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setPresetMode('unblock_reel')}
+            className={`p-3.5 rounded-xl border text-left transition-all cursor-pointer flex flex-col justify-between ${
+              presetMode === 'unblock_reel'
+                ? 'bg-[#ff823c]/15 border-[#ff823c] text-[#ff823c] shadow-lg shadow-[#ff823c]/10'
+                : 'bg-[#1c1b1c] border-[rgba(87,66,56,0.2)] text-[#dec0b3]/70 hover:border-[rgba(87,66,56,0.4)] hover:text-white'
+            }`}
+          >
+            <div className="flex items-center justify-between mb-1">
+              <span className="font-bold text-xs flex items-center gap-1.5 text-white">
+                🚀 Viral Social Reel (IG & YT Shorts)
+              </span>
+              {presetMode === 'unblock_reel' && <CheckCircle2 className="w-4 h-4 text-[#ff823c]" />}
+            </div>
+            <span className="text-[11px] text-[#dec0b3]/80 leading-relaxed">
+              High-hook, high-virality social media reel format (<code className="text-[#ffb692]">preset: "unblock_reel"</code>)
+            </span>
+          </button>
+        </div>
+      </div>
+
       {/* Preset Stressors Picker */}
       <div>
         <label className="block text-xs font-semibold uppercase tracking-wider text-[#dec0b3] mb-2">
@@ -288,20 +348,33 @@ export const GeneratorSection: React.FC<Props> = ({
       </div>
 
       {/* Configuration Selectors */}
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         <div>
-          <label className="block text-xs font-medium text-[#dec0b3] mb-1 flex items-center gap-1">
-            <Volume2 className="w-3.5 h-3.5 text-[#ffb692]" /> Target Session Length
+          <label className="block text-xs font-medium text-[#dec0b3] mb-1 flex items-center justify-between">
+            <span className="flex items-center gap-1">
+              <Volume2 className="w-3.5 h-3.5 text-[#ffb692]" /> Target Session Length
+            </span>
+            {presetMode === 'unblock_reel' && (
+              <span className="text-[9px] font-mono text-[#ff823c] bg-[#ff823c]/10 px-1.5 py-0.5 rounded border border-[#ff823c]/20">
+                Auto
+              </span>
+            )}
           </label>
-          <select
-            value={durationCategory}
-            onChange={(e) => setDurationCategory(e.target.value as any)}
-            className="w-full glass-input rounded-lg px-3 py-2 text-xs cursor-pointer"
-          >
-            <option value="dynamic" className="bg-[#1c1b1c]">⚡ Dynamic (Sync to Full Audio)</option>
-            <option value="quick" className="bg-[#1c1b1c]">Quick Clip (15s)</option>
-            <option value="deep" className="bg-[#1c1b1c]">Deep Session (30s+)</option>
-          </select>
+          {presetMode === 'unblock_reel' ? (
+            <div className="w-full glass-input rounded-lg px-3 py-2 text-xs text-[#dec0b3]/60 bg-[#1c1b1c]/50 border border-[rgba(87,66,56,0.15)] flex items-center justify-between cursor-not-allowed">
+              <span>⚡ Auto (picked by backend)</span>
+            </div>
+          ) : (
+            <select
+              value={durationCategory}
+              onChange={(e) => setDurationCategory(e.target.value as any)}
+              className="w-full glass-input rounded-lg px-3 py-2 text-xs cursor-pointer"
+            >
+              <option value="dynamic" className="bg-[#1c1b1c]">⚡ Dynamic (Sync to Full Audio)</option>
+              <option value="quick" className="bg-[#1c1b1c]">Quick Clip (15s)</option>
+              <option value="deep" className="bg-[#1c1b1c]">Deep Session (30s+)</option>
+            </select>
+          )}
         </div>
 
         <div>
