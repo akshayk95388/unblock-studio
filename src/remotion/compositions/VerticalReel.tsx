@@ -32,6 +32,9 @@ export const VerticalReel: React.FC<VerticalReelProps> = ({
         mode={styleConfig.bgMode}
         customBgUrl={styleConfig.customBgUrl}
         customBgType={styleConfig.customBgType}
+        customBgScale={styleConfig.customBgScale}
+        customBgPositionX={styleConfig.customBgPositionX}
+        customBgPositionY={styleConfig.customBgPositionY}
       />
 
       {/* 2. Visual Animation & Motion Overlays */}

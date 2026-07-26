@@ -53,6 +53,9 @@ export interface VideoStyleConfig {
   overlayConfig?: OverlayConfig;
   customBgUrl?: string;
   customBgType?: 'image' | 'video';
+  customBgScale?: number;
+  customBgPositionX?: number;
+  customBgPositionY?: number;
 }
 
 export interface VerticalReelProps {

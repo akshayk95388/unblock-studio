@@ -6,6 +6,9 @@ interface Props {
   mode: BgModeType;
   customBgUrl?: string;
   customBgType?: 'image' | 'video';
+  customBgScale?: number;
+  customBgPositionX?: number;
+  customBgPositionY?: number;
 }
 
 const IMAGE_PATHS: Record<string, string> = {
@@ -15,7 +18,14 @@ const IMAGE_PATHS: Record<string, string> = {
   img_cosmic: 'backgrounds/calm_cosmic.jpg',
 };
 
-export const BackgroundCanvas: React.FC<Props> = ({ mode, customBgUrl, customBgType }) => {
+export const BackgroundCanvas: React.FC<Props> = ({
+  mode,
+  customBgUrl,
+  customBgType,
+  customBgScale,
+  customBgPositionX,
+  customBgPositionY,
+}) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
@@ -51,6 +61,16 @@ export const BackgroundCanvas: React.FC<Props> = ({ mode, customBgUrl, customBgT
   // Render Custom Uploaded Image or Video Background
   if (mode === 'custom_media' && customBgUrl) {
     const isVideo = customBgType === 'video' || Boolean(customBgUrl.match(/\.(mp4|webm|mov|m4v)(\?.*)?$/i));
+    const userScale = customBgScale ?? 1.0;
+    const posX = customBgPositionX ?? 50;
+    const posY = customBgPositionY ?? 50;
+    const objectPosition = `${posX}% ${posY}%`;
+    const transformOrigin = `${posX}% ${posY}%`;
+
+    // Calculate pan offset translate so Y-axis and X-axis pan smoothly regardless of image aspect ratio
+    const panX = (50 - posX) * 0.8;
+    const panY = (50 - posY) * 0.8;
+
     return (
       <div
         style={{
@@ -69,6 +89,9 @@ export const BackgroundCanvas: React.FC<Props> = ({ mode, customBgUrl, customBgT
               width: '100%',
               height: '100%',
               objectFit: 'cover',
+              objectPosition,
+              transformOrigin,
+              transform: `scale(${userScale}) translate(${panX / userScale}%, ${panY / userScale}%)`,
             }}
           />
         ) : (
@@ -79,7 +102,9 @@ export const BackgroundCanvas: React.FC<Props> = ({ mode, customBgUrl, customBgT
               width: '100%',
               height: '100%',
               objectFit: 'cover',
-              transform: `scale(${imageScale})`,
+              objectPosition,
+              transformOrigin,
+              transform: `scale(${userScale * imageScale}) translate(${panX / userScale}%, ${panY / userScale}%)`,
               transition: 'transform 0.1s linear',
             }}
           />

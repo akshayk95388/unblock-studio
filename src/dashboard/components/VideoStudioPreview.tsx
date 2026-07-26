@@ -3,7 +3,7 @@ import { Player } from '@remotion/player';
 import { VerticalReel } from '../../remotion/compositions/VerticalReel';
 import { VerticalReelProps, VideoStyleConfig, OverlayEffectType, getDimensions } from '../../remotion/types';
 import { getPlayableAudioUrl } from '../utils/audioResolver';
-import { Sliders, Download, Palette, Type, AlignCenter, Activity, FileAudio, FileText, CheckCircle2, Video, Clock, RefreshCw, Monitor, AlertCircle, Zap, Sparkles, Layers, Flame, Upload, Link, Image } from 'lucide-react';
+import { Sliders, Download, Palette, Type, AlignCenter, Activity, FileAudio, FileText, CheckCircle2, Video, Clock, RefreshCw, Monitor, AlertCircle, Zap, Sparkles, Layers, Flame, Upload, Link, Image, ZoomIn } from 'lucide-react';
 
 interface Props {
   reelProps: VerticalReelProps;
@@ -419,13 +419,91 @@ export const VideoStudioPreview: React.FC<Props> = ({
                     </span>
                     <button
                       type="button"
-                      onClick={() => onStyleChange({ customBgUrl: '', bgMode: 'img_forest' })}
+                      onClick={() => onStyleChange({ customBgUrl: '', bgMode: 'img_forest', customBgScale: 1.0, customBgPositionX: 50, customBgPositionY: 50 })}
                       className="text-rose-400 hover:text-rose-300 font-bold ml-2 cursor-pointer text-xs"
                     >
                       Remove
                     </button>
                   </div>
                 )}
+
+                {/* ── Zoom & Focus Framing Sliders ── */}
+                <div className="pt-2.5 border-t border-[rgba(87,66,56,0.3)] space-y-2.5">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[11px] font-semibold text-[#dec0b3] flex items-center gap-1">
+                      <ZoomIn className="w-3.5 h-3.5 text-[#ffb692]" /> Background Zoom & Focus Framing
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => onStyleChange({ customBgScale: 1.0, customBgPositionX: 50, customBgPositionY: 50 })}
+                      className="text-[10px] text-[#dec0b3]/70 hover:text-[#ffb692] font-semibold cursor-pointer underline"
+                    >
+                      Reset Framing
+                    </button>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    {/* Zoom Level Slider */}
+                    <div>
+                      <label className="block text-[10px] text-[#dec0b3]/80 font-medium mb-1 flex justify-between">
+                        <span>Zoom Level:</span>
+                        <span className="font-mono text-[#ffb692]">{Math.round((styleConfig.customBgScale || 1.0) * 100)}%</span>
+                      </label>
+                      <input
+                        type="range"
+                        min={1.0}
+                        max={3.0}
+                        step={0.05}
+                        value={styleConfig.customBgScale || 1.0}
+                        onChange={(e) => {
+                          setLastDownloadUrl(null);
+                          onStyleChange({ customBgScale: parseFloat(e.target.value) });
+                        }}
+                        className="w-full accent-[#ffb692] cursor-pointer"
+                      />
+                    </div>
+
+                    {/* Horizontal Pan (X) */}
+                    <div>
+                      <label className="block text-[10px] text-[#dec0b3]/80 font-medium mb-1 flex justify-between">
+                        <span>Focus X (Left/Right):</span>
+                        <span className="font-mono text-[#ffb692]">{styleConfig.customBgPositionX ?? 50}%</span>
+                      </label>
+                      <input
+                        type="range"
+                        min={0}
+                        max={100}
+                        step={1}
+                        value={styleConfig.customBgPositionX ?? 50}
+                        onChange={(e) => {
+                          setLastDownloadUrl(null);
+                          onStyleChange({ customBgPositionX: parseInt(e.target.value, 10) });
+                        }}
+                        className="w-full accent-[#ffb692] cursor-pointer"
+                      />
+                    </div>
+
+                    {/* Vertical Pan (Y) */}
+                    <div>
+                      <label className="block text-[10px] text-[#dec0b3]/80 font-medium mb-1 flex justify-between">
+                        <span>Focus Y (Top/Bottom):</span>
+                        <span className="font-mono text-[#ffb692]">{styleConfig.customBgPositionY ?? 50}%</span>
+                      </label>
+                      <input
+                        type="range"
+                        min={0}
+                        max={100}
+                        step={1}
+                        value={styleConfig.customBgPositionY ?? 50}
+                        onChange={(e) => {
+                          setLastDownloadUrl(null);
+                          onStyleChange({ customBgPositionY: parseInt(e.target.value, 10) });
+                        }}
+                        className="w-full accent-[#ffb692] cursor-pointer"
+                      />
+                    </div>
+                  </div>
+                </div>
               </div>
             )}
 
