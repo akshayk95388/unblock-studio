@@ -58,7 +58,6 @@ export const GeneratorSection: React.FC<Props> = ({
 
       if (presetMode === 'guided') {
         payload.duration_category = durationCategory;
-        payload.duration_mins = durationCategory === 'deep' ? 3 : 1;
       } else {
         payload.preset = 'unblock_reel';
       }
@@ -352,7 +351,7 @@ export const GeneratorSection: React.FC<Props> = ({
         <div>
           <label className="block text-xs font-medium text-[#dec0b3] mb-1 flex items-center justify-between">
             <span className="flex items-center gap-1">
-              <Volume2 className="w-3.5 h-3.5 text-[#ffb692]" /> Target Session Length
+              <Volume2 className="w-3.5 h-3.5 text-[#ffb692]" /> Session Type
             </span>
             {presetMode === 'unblock_reel' && (
               <span className="text-[9px] font-mono text-[#ff823c] bg-[#ff823c]/10 px-1.5 py-0.5 rounded border border-[#ff823c]/20">
@@ -370,9 +369,8 @@ export const GeneratorSection: React.FC<Props> = ({
               onChange={(e) => setDurationCategory(e.target.value as any)}
               className="w-full glass-input rounded-lg px-3 py-2 text-xs cursor-pointer"
             >
-              <option value="dynamic" className="bg-[#1c1b1c]">⚡ Dynamic (Sync to Full Audio)</option>
-              <option value="quick" className="bg-[#1c1b1c]">Quick Clip (15s)</option>
-              <option value="deep" className="bg-[#1c1b1c]">Deep Session (30s+)</option>
+              <option value="quick" className="bg-[#1c1b1c]">Quick</option>
+              <option value="deep" className="bg-[#1c1b1c]">Deep</option>
             </select>
           )}
         </div>
