@@ -3,7 +3,7 @@ import { Player } from '@remotion/player';
 import { VerticalReel } from '../../remotion/compositions/VerticalReel';
 import { VerticalReelProps, VideoStyleConfig, OverlayEffectType, getDimensions } from '../../remotion/types';
 import { getPlayableAudioUrl } from '../utils/audioResolver';
-import { Sliders, Download, Palette, Type, AlignCenter, Activity, FileAudio, FileText, CheckCircle2, Video, Clock, RefreshCw, Monitor, AlertCircle, Zap, Sparkles, Layers, Flame, Upload, Link, Image, ZoomIn } from 'lucide-react';
+import { Sliders, Download, Palette, Type, AlignCenter, Activity, FileAudio, FileText, CheckCircle2, Video, Clock, RefreshCw, Monitor, AlertCircle, Zap, Sparkles, Layers, Flame, Upload, Link, Image, ZoomIn, ChevronDown, ChevronUp } from 'lucide-react';
 
 interface Props {
   reelProps: VerticalReelProps;
@@ -24,6 +24,10 @@ export const VideoStudioPreview: React.FC<Props> = ({
   const [downloadSuccess, setDownloadSuccess] = useState<string | null>(null);
   const [renderError, setRenderError] = useState<string | null>(null);
   const [isServerRendering, setIsServerRendering] = useState(false);
+
+  // Collapsible panel states (closed/minimized by default)
+  const [isCustomMediaOpen, setIsCustomMediaOpen] = useState(false);
+  const [isOverlayOpen, setIsOverlayOpen] = useState(false);
 
   // Live rendering progress state
   const [renderProgressPct, setRenderProgressPct] = useState<number>(0);
@@ -335,175 +339,197 @@ export const VideoStudioPreview: React.FC<Props> = ({
 
             {/* ── Custom Media Upload & URL Controls Box ── */}
             {styleConfig.bgMode === 'custom_media' && (
-              <div className="col-span-1 sm:col-span-2 p-4 rounded-xl bg-[#131314] border border-[#ffb692]/40 space-y-3 shadow-lg">
-                <div className="flex items-center justify-between">
+              <div className="col-span-1 sm:col-span-2 rounded-xl bg-[#131314] border border-[#ffb692]/40 shadow-lg overflow-hidden transition-all">
+                <button
+                  type="button"
+                  onClick={() => setIsCustomMediaOpen(!isCustomMediaOpen)}
+                  className="w-full p-4 flex items-center justify-between cursor-pointer hover:bg-[#1c1b1c]/60 transition-all text-left"
+                >
                   <span className="text-xs font-bold text-[#ffb692] flex items-center gap-1.5">
                     <Upload className="w-4 h-4 text-[#ffb692]" /> Custom Background Media (Image or Video)
                   </span>
-                  <div className="flex items-center gap-1.5">
-                    <button
-                      type="button"
-                      onClick={() => onStyleChange({ customBgType: 'image' })}
-                      className={`px-2.5 py-1 rounded-lg text-[10px] font-semibold border cursor-pointer transition-all ${
-                        (styleConfig.customBgType || 'image') === 'image'
-                          ? 'bg-[#ffb692]/20 text-[#ffb692] border-[#ffb692]/40'
-                          : 'bg-[#1c1b1c] text-[#dec0b3]/60 border-[rgba(87,66,56,0.3)] hover:bg-[#2a2a2b]'
-                      }`}
-                    >
-                      🖼️ Image
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => onStyleChange({ customBgType: 'video' })}
-                      className={`px-2.5 py-1 rounded-lg text-[10px] font-semibold border cursor-pointer transition-all ${
-                        styleConfig.customBgType === 'video'
-                          ? 'bg-[#ffb692]/20 text-[#ffb692] border-[#ffb692]/40'
-                          : 'bg-[#1c1b1c] text-[#dec0b3]/60 border-[rgba(87,66,56,0.3)] hover:bg-[#2a2a2b]'
-                      }`}
-                    >
-                      🎥 Video Loop
-                    </button>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  {/* File Upload Zone */}
-                  <div>
-                    <label className="block text-[10px] text-[#dec0b3]/80 font-medium mb-1">
-                      Upload Local File (.png, .jpg, .mp4, .webm)
-                    </label>
-                    <label className="flex items-center justify-center gap-2 px-3 py-2 rounded-xl bg-[#1c1b1c] hover:bg-[#2a2a2b] border border-dashed border-[#ffb692]/40 text-xs font-semibold text-[#e5e2e3] cursor-pointer transition-all">
-                      <Upload className="w-3.5 h-3.5 text-[#ffb692]" />
-                      <span>{styleConfig.customBgUrl ? 'Change File' : 'Browse Local Image / Video'}</span>
-                      <input
-                        type="file"
-                        accept="image/*,video/mp4,video/webm,video/quicktime"
-                        onChange={handleCustomFileUpload}
-                        className="hidden"
-                      />
-                    </label>
-                  </div>
-
-                  {/* Direct Media URL Input */}
-                  <div>
-                    <label className="block text-[10px] text-[#dec0b3]/80 font-medium mb-1">
-                      Or Direct Media URL
-                    </label>
-                    <div className="flex items-center gap-1.5">
-                      <Link className="w-3.5 h-3.5 text-[#dec0b3]/60 shrink-0" />
-                      <input
-                        type="text"
-                        placeholder="https://example.com/meditation.mp4"
-                        value={styleConfig.customBgUrl || ''}
-                        onChange={(e) => {
-                          const url = e.target.value;
-                          const isVideo = Boolean(url.match(/\.(mp4|webm|mov|m4v)(\?.*)?$/i));
-                          setLastDownloadUrl(null);
-                          onStyleChange({
-                            bgMode: 'custom_media',
-                            customBgUrl: url,
-                            customBgType: isVideo ? 'video' : (styleConfig.customBgType || 'image'),
-                          });
-                        }}
-                        className="w-full glass-input rounded-xl px-2.5 py-1.5 text-xs font-mono text-[#e5e2e3]"
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                {styleConfig.customBgUrl && (
-                  <div className="flex items-center justify-between text-[11px] text-[#dec0b3]/90 bg-[#1c1b1c] px-3 py-1.5 rounded-lg border border-[rgba(87,66,56,0.3)]">
-                    <span className="truncate max-w-[85%] font-mono text-[10px] flex items-center gap-1">
-                      <span className="text-[#ffb692] font-semibold">Active Background:</span>
-                      <span className="truncate text-[#e5e2e3]">{styleConfig.customBgUrl}</span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] font-mono text-[#ffb692] bg-[#ffb692]/10 px-2.5 py-0.5 rounded-full border border-[#ffb692]/20">
+                      {styleConfig.customBgUrl ? (styleConfig.customBgType === 'video' ? '🎥 Video Loop' : '🖼️ Image') : 'No File Uploaded'}
                     </span>
-                    <button
-                      type="button"
-                      onClick={() => onStyleChange({ customBgUrl: '', bgMode: 'img_forest', customBgScale: 1.0, customBgPositionX: 50, customBgPositionY: 50 })}
-                      className="text-rose-400 hover:text-rose-300 font-bold ml-2 cursor-pointer text-xs"
-                    >
-                      Remove
-                    </button>
+                    {isCustomMediaOpen ? (
+                      <ChevronUp className="w-4 h-4 text-[#dec0b3]/70" />
+                    ) : (
+                      <ChevronDown className="w-4 h-4 text-[#dec0b3]/70" />
+                    )}
+                  </div>
+                </button>
+
+                {isCustomMediaOpen && (
+                  <div className="p-4 pt-1 border-t border-[rgba(87,66,56,0.3)] space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[11px] text-[#dec0b3]/80 font-medium">Select Media Source:</span>
+                      <div className="flex items-center gap-1.5">
+                        <button
+                          type="button"
+                          onClick={() => onStyleChange({ customBgType: 'image' })}
+                          className={`px-2.5 py-1 rounded-lg text-[10px] font-semibold border cursor-pointer transition-all ${
+                            (styleConfig.customBgType || 'image') === 'image'
+                              ? 'bg-[#ffb692]/20 text-[#ffb692] border-[#ffb692]/40'
+                              : 'bg-[#1c1b1c] text-[#dec0b3]/60 border-[rgba(87,66,56,0.3)] hover:bg-[#2a2a2b]'
+                          }`}
+                        >
+                          🖼️ Image
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => onStyleChange({ customBgType: 'video' })}
+                          className={`px-2.5 py-1 rounded-lg text-[10px] font-semibold border cursor-pointer transition-all ${
+                            styleConfig.customBgType === 'video'
+                              ? 'bg-[#ffb692]/20 text-[#ffb692] border-[#ffb692]/40'
+                              : 'bg-[#1c1b1c] text-[#dec0b3]/60 border-[rgba(87,66,56,0.3)] hover:bg-[#2a2a2b]'
+                          }`}
+                        >
+                          🎥 Video Loop
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      {/* File Upload Zone */}
+                      <div>
+                        <label className="block text-[10px] text-[#dec0b3]/80 font-medium mb-1">
+                          Upload Local File (.png, .jpg, .mp4, .webm)
+                        </label>
+                        <label className="flex items-center justify-center gap-2 px-3 py-2 rounded-xl bg-[#1c1b1c] hover:bg-[#2a2a2b] border border-dashed border-[#ffb692]/40 text-xs font-semibold text-[#e5e2e3] cursor-pointer transition-all">
+                          <Upload className="w-3.5 h-3.5 text-[#ffb692]" />
+                          <span>{styleConfig.customBgUrl ? 'Change File' : 'Browse Local Image / Video'}</span>
+                          <input
+                            type="file"
+                            accept="image/*,video/mp4,video/webm,video/quicktime"
+                            onChange={handleCustomFileUpload}
+                            className="hidden"
+                          />
+                        </label>
+                      </div>
+
+                      {/* Direct Media URL Input */}
+                      <div>
+                        <label className="block text-[10px] text-[#dec0b3]/80 font-medium mb-1">
+                          Or Direct Media URL
+                        </label>
+                        <div className="flex items-center gap-1.5">
+                          <Link className="w-3.5 h-3.5 text-[#dec0b3]/60 shrink-0" />
+                          <input
+                            type="text"
+                            placeholder="https://example.com/meditation.mp4"
+                            value={styleConfig.customBgUrl || ''}
+                            onChange={(e) => {
+                              const url = e.target.value;
+                              const isVideo = Boolean(url.match(/\.(mp4|webm|mov|m4v)(\?.*)?$/i));
+                              setLastDownloadUrl(null);
+                              onStyleChange({
+                                bgMode: 'custom_media',
+                                customBgUrl: url,
+                                customBgType: isVideo ? 'video' : (styleConfig.customBgType || 'image'),
+                              });
+                            }}
+                            className="w-full glass-input rounded-xl px-2.5 py-1.5 text-xs font-mono text-[#e5e2e3]"
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    {styleConfig.customBgUrl && (
+                      <div className="flex items-center justify-between text-[11px] text-[#dec0b3]/90 bg-[#1c1b1c] px-3 py-1.5 rounded-lg border border-[rgba(87,66,56,0.3)]">
+                        <span className="truncate max-w-[85%] font-mono text-[10px] flex items-center gap-1">
+                          <span className="text-[#ffb692] font-semibold">Active Background:</span>
+                          <span className="truncate text-[#e5e2e3]">{styleConfig.customBgUrl}</span>
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => onStyleChange({ customBgUrl: '', bgMode: 'img_forest', customBgScale: 1.0, customBgPositionX: 50, customBgPositionY: 50 })}
+                          className="text-rose-400 hover:text-rose-300 font-bold ml-2 cursor-pointer text-xs"
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    )}
+
+                    {/* ── Zoom & Focus Framing Sliders ── */}
+                    <div className="pt-2.5 border-t border-[rgba(87,66,56,0.3)] space-y-2.5">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[11px] font-semibold text-[#dec0b3] flex items-center gap-1">
+                          <ZoomIn className="w-3.5 h-3.5 text-[#ffb692]" /> Background Zoom & Focus Framing
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => onStyleChange({ customBgScale: 1.0, customBgPositionX: 50, customBgPositionY: 50 })}
+                          className="text-[10px] text-[#dec0b3]/70 hover:text-[#ffb692] font-semibold cursor-pointer underline"
+                        >
+                          Reset Framing
+                        </button>
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        {/* Zoom Level Slider */}
+                        <div>
+                          <label className="block text-[10px] text-[#dec0b3]/80 font-medium mb-1 flex justify-between">
+                            <span>Zoom Level:</span>
+                            <span className="font-mono text-[#ffb692]">{Math.round((styleConfig.customBgScale || 1.0) * 100)}%</span>
+                          </label>
+                          <input
+                            type="range"
+                            min={1.0}
+                            max={3.0}
+                            step={0.05}
+                            value={styleConfig.customBgScale || 1.0}
+                            onChange={(e) => {
+                              setLastDownloadUrl(null);
+                              onStyleChange({ customBgScale: parseFloat(e.target.value) });
+                            }}
+                            className="w-full accent-[#ffb692] cursor-pointer"
+                          />
+                        </div>
+
+                        {/* Horizontal Pan (X) */}
+                        <div>
+                          <label className="block text-[10px] text-[#dec0b3]/80 font-medium mb-1 flex justify-between">
+                            <span>Focus X (Left/Right):</span>
+                            <span className="font-mono text-[#ffb692]">{styleConfig.customBgPositionX ?? 50}%</span>
+                          </label>
+                          <input
+                            type="range"
+                            min={0}
+                            max={100}
+                            step={1}
+                            value={styleConfig.customBgPositionX ?? 50}
+                            onChange={(e) => {
+                              setLastDownloadUrl(null);
+                              onStyleChange({ customBgPositionX: parseInt(e.target.value, 10) });
+                            }}
+                            className="w-full accent-[#ffb692] cursor-pointer"
+                          />
+                        </div>
+
+                        {/* Vertical Pan (Y) */}
+                        <div>
+                          <label className="block text-[10px] text-[#dec0b3]/80 font-medium mb-1 flex justify-between">
+                            <span>Focus Y (Top/Bottom):</span>
+                            <span className="font-mono text-[#ffb692]">{styleConfig.customBgPositionY ?? 50}%</span>
+                          </label>
+                          <input
+                            type="range"
+                            min={0}
+                            max={100}
+                            step={1}
+                            value={styleConfig.customBgPositionY ?? 50}
+                            onChange={(e) => {
+                              setLastDownloadUrl(null);
+                              onStyleChange({ customBgPositionY: parseInt(e.target.value, 10) });
+                            }}
+                            className="w-full accent-[#ffb692] cursor-pointer"
+                          />
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 )}
-
-                {/* ── Zoom & Focus Framing Sliders ── */}
-                <div className="pt-2.5 border-t border-[rgba(87,66,56,0.3)] space-y-2.5">
-                  <div className="flex items-center justify-between">
-                    <span className="text-[11px] font-semibold text-[#dec0b3] flex items-center gap-1">
-                      <ZoomIn className="w-3.5 h-3.5 text-[#ffb692]" /> Background Zoom & Focus Framing
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => onStyleChange({ customBgScale: 1.0, customBgPositionX: 50, customBgPositionY: 50 })}
-                      className="text-[10px] text-[#dec0b3]/70 hover:text-[#ffb692] font-semibold cursor-pointer underline"
-                    >
-                      Reset Framing
-                    </button>
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                    {/* Zoom Level Slider */}
-                    <div>
-                      <label className="block text-[10px] text-[#dec0b3]/80 font-medium mb-1 flex justify-between">
-                        <span>Zoom Level:</span>
-                        <span className="font-mono text-[#ffb692]">{Math.round((styleConfig.customBgScale || 1.0) * 100)}%</span>
-                      </label>
-                      <input
-                        type="range"
-                        min={1.0}
-                        max={3.0}
-                        step={0.05}
-                        value={styleConfig.customBgScale || 1.0}
-                        onChange={(e) => {
-                          setLastDownloadUrl(null);
-                          onStyleChange({ customBgScale: parseFloat(e.target.value) });
-                        }}
-                        className="w-full accent-[#ffb692] cursor-pointer"
-                      />
-                    </div>
-
-                    {/* Horizontal Pan (X) */}
-                    <div>
-                      <label className="block text-[10px] text-[#dec0b3]/80 font-medium mb-1 flex justify-between">
-                        <span>Focus X (Left/Right):</span>
-                        <span className="font-mono text-[#ffb692]">{styleConfig.customBgPositionX ?? 50}%</span>
-                      </label>
-                      <input
-                        type="range"
-                        min={0}
-                        max={100}
-                        step={1}
-                        value={styleConfig.customBgPositionX ?? 50}
-                        onChange={(e) => {
-                          setLastDownloadUrl(null);
-                          onStyleChange({ customBgPositionX: parseInt(e.target.value, 10) });
-                        }}
-                        className="w-full accent-[#ffb692] cursor-pointer"
-                      />
-                    </div>
-
-                    {/* Vertical Pan (Y) */}
-                    <div>
-                      <label className="block text-[10px] text-[#dec0b3]/80 font-medium mb-1 flex justify-between">
-                        <span>Focus Y (Top/Bottom):</span>
-                        <span className="font-mono text-[#ffb692]">{styleConfig.customBgPositionY ?? 50}%</span>
-                      </label>
-                      <input
-                        type="range"
-                        min={0}
-                        max={100}
-                        step={1}
-                        value={styleConfig.customBgPositionY ?? 50}
-                        onChange={(e) => {
-                          setLastDownloadUrl(null);
-                          onStyleChange({ customBgPositionY: parseInt(e.target.value, 10) });
-                        }}
-                        className="w-full accent-[#ffb692] cursor-pointer"
-                      />
-                    </div>
-                  </div>
-                </div>
               </div>
             )}
 
@@ -595,71 +621,84 @@ export const VideoStudioPreview: React.FC<Props> = ({
 
         {/* ── Motion & Animation Overlays Box ── */}
         <div className="glass-panel rounded-2xl p-5 border border-[rgba(87,66,56,0.25)] space-y-4">
-          <div className="flex items-center justify-between">
+          <button
+            type="button"
+            onClick={() => setIsOverlayOpen(!isOverlayOpen)}
+            className="w-full flex items-center justify-between cursor-pointer group text-left"
+          >
             <div className="flex items-center gap-2">
               <Sparkles className="w-4 h-4 text-[#ffb692]" />
               <h4 className="text-xs font-bold text-[#e5e2e3]">Motion & Animation Overlays</h4>
             </div>
-            <span className="text-[10px] font-mono text-[#ffb692] bg-[#ffb692]/10 px-2 py-0.5 rounded-full border border-[#ffb692]/20 capitalize">
-              {styleConfig.overlayConfig?.effect || 'none'}
-            </span>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-[11px] font-medium text-[#dec0b3] mb-1.5">
-                Visual Overlay Effect
-              </label>
-              <select
-                value={styleConfig.overlayConfig?.effect || 'none'}
-                onChange={(e) => {
-                  setLastDownloadUrl(null);
-                  onStyleChange({
-                    overlayConfig: {
-                      effect: e.target.value as OverlayEffectType,
-                      startInSeconds: styleConfig.overlayConfig?.startInSeconds || 0,
-                      durationInSeconds: styleConfig.overlayConfig?.durationInSeconds || (reelProps.durationInSeconds || 15),
-                      opacity: styleConfig.overlayConfig?.opacity ?? 0.6,
-                    },
-                  });
-                }}
-                className="w-full glass-input rounded-xl px-3 py-2 text-xs cursor-pointer"
-              >
-                <option value="none" className="bg-[#1c1b1c]">🚫 None (Clean Background)</option>
-                <option value="ambient_particles" className="bg-[#1c1b1c]">✨ Ambient Floating Particles</option>
-                <option value="glowing_orbs" className="bg-[#1c1b1c]">🔮 Pulsating Glowing Bokeh Orbs</option>
-                <option value="cosmic_dust" className="bg-[#1c1b1c]">🌌 Swirling Cosmic Dust</option>
-                <option value="light_leaks" className="bg-[#1c1b1c]">🎞️ Vintage Film Light Leaks</option>
-              </select>
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] font-mono text-[#ffb692] bg-[#ffb692]/10 px-2.5 py-0.5 rounded-full border border-[#ffb692]/20 capitalize">
+                {styleConfig.overlayConfig?.effect || 'none'}
+              </span>
+              {isOverlayOpen ? (
+                <ChevronUp className="w-4 h-4 text-[#dec0b3]/70 group-hover:text-[#ffb692] transition-all" />
+              ) : (
+                <ChevronDown className="w-4 h-4 text-[#dec0b3]/70 group-hover:text-[#ffb692] transition-all" />
+              )}
             </div>
+          </button>
 
-            {styleConfig.overlayConfig?.effect !== 'none' && (
+          {isOverlayOpen && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-3 border-t border-[rgba(87,66,56,0.2)]">
               <div>
-                <label className="block text-[11px] font-medium text-[#dec0b3] mb-1 flex justify-between">
-                  <span>Overlay Opacity:</span>
-                  <span className="font-mono text-[#ffb692]">{Math.round((styleConfig.overlayConfig?.opacity ?? 0.6) * 100)}%</span>
+                <label className="block text-[11px] font-medium text-[#dec0b3] mb-1.5">
+                  Visual Overlay Effect
                 </label>
-                <input
-                  type="range"
-                  min={0.1}
-                  max={1.0}
-                  step={0.05}
-                  value={styleConfig.overlayConfig?.opacity ?? 0.6}
+                <select
+                  value={styleConfig.overlayConfig?.effect || 'none'}
                   onChange={(e) => {
+                    setLastDownloadUrl(null);
                     onStyleChange({
                       overlayConfig: {
-                        effect: styleConfig.overlayConfig?.effect || 'ambient_particles',
+                        effect: e.target.value as OverlayEffectType,
                         startInSeconds: styleConfig.overlayConfig?.startInSeconds || 0,
-                        durationInSeconds: styleConfig.overlayConfig?.durationInSeconds || 15,
-                        opacity: parseFloat(e.target.value),
+                        durationInSeconds: styleConfig.overlayConfig?.durationInSeconds || (reelProps.durationInSeconds || 15),
+                        opacity: styleConfig.overlayConfig?.opacity ?? 0.6,
                       },
                     });
                   }}
-                  className="w-full accent-[#ffb692] cursor-pointer mt-2"
-                />
+                  className="w-full glass-input rounded-xl px-3 py-2 text-xs cursor-pointer"
+                >
+                  <option value="none" className="bg-[#1c1b1c]">🚫 None (Clean Background)</option>
+                  <option value="ambient_particles" className="bg-[#1c1b1c]">✨ Ambient Floating Particles</option>
+                  <option value="glowing_orbs" className="bg-[#1c1b1c]">🔮 Pulsating Glowing Bokeh Orbs</option>
+                  <option value="cosmic_dust" className="bg-[#1c1b1c]">🌌 Swirling Cosmic Dust</option>
+                  <option value="light_leaks" className="bg-[#1c1b1c]">🎞️ Vintage Film Light Leaks</option>
+                </select>
               </div>
-            )}
-          </div>
+
+              {styleConfig.overlayConfig?.effect !== 'none' && (
+                <div>
+                  <label className="block text-[11px] font-medium text-[#dec0b3] mb-1 flex justify-between">
+                    <span>Overlay Opacity:</span>
+                    <span className="font-mono text-[#ffb692]">{Math.round((styleConfig.overlayConfig?.opacity ?? 0.6) * 100)}%</span>
+                  </label>
+                  <input
+                    type="range"
+                    min={0.1}
+                    max={1.0}
+                    step={0.05}
+                    value={styleConfig.overlayConfig?.opacity ?? 0.6}
+                    onChange={(e) => {
+                      onStyleChange({
+                        overlayConfig: {
+                          effect: styleConfig.overlayConfig?.effect || 'ambient_particles',
+                          startInSeconds: styleConfig.overlayConfig?.startInSeconds || 0,
+                          durationInSeconds: styleConfig.overlayConfig?.durationInSeconds || 15,
+                          opacity: parseFloat(e.target.value),
+                        },
+                      });
+                    }}
+                    className="w-full accent-[#ffb692] cursor-pointer mt-2"
+                  />
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Action & Export Box */}
