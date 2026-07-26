@@ -28,7 +28,11 @@ export const VerticalReel: React.FC<VerticalReelProps> = ({
   return (
     <AbsoluteFill style={{ backgroundColor: '#080b12', overflow: 'hidden' }}>
       {/* 1. Dynamic Visual Background Layer */}
-      <BackgroundCanvas mode={styleConfig.bgMode} />
+      <BackgroundCanvas
+        mode={styleConfig.bgMode}
+        customBgUrl={styleConfig.customBgUrl}
+        customBgType={styleConfig.customBgType}
+      />
 
       {/* 2. Visual Animation & Motion Overlays */}
       {overlayEffect !== 'none' && (

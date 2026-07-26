@@ -3,7 +3,7 @@ import { Player } from '@remotion/player';
 import { VerticalReel } from '../../remotion/compositions/VerticalReel';
 import { VerticalReelProps, VideoStyleConfig, OverlayEffectType, getDimensions } from '../../remotion/types';
 import { getPlayableAudioUrl } from '../utils/audioResolver';
-import { Sliders, Download, Palette, Type, AlignCenter, Activity, FileAudio, FileText, CheckCircle2, Video, Clock, RefreshCw, Monitor, AlertCircle, Zap, Sparkles, Layers, Flame } from 'lucide-react';
+import { Sliders, Download, Palette, Type, AlignCenter, Activity, FileAudio, FileText, CheckCircle2, Video, Clock, RefreshCw, Monitor, AlertCircle, Zap, Sparkles, Layers, Flame, Upload, Link, Image } from 'lucide-react';
 
 interface Props {
   reelProps: VerticalReelProps;
@@ -30,6 +30,22 @@ export const VideoStudioPreview: React.FC<Props> = ({
   const [renderedFrames, setRenderedFrames] = useState<number>(0);
   const [totalFrames, setTotalFrames] = useState<number>(0);
   const [lastDownloadUrl, setLastDownloadUrl] = useState<string | null>(null);
+
+  const handleCustomFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const isVideoFile = file.type.startsWith('video/') || Boolean(file.name.match(/\.(mp4|webm|mov|m4v)$/i));
+    const mediaType: 'image' | 'video' = isVideoFile ? 'video' : 'image';
+    const objectUrl = URL.createObjectURL(file);
+
+    setLastDownloadUrl(null);
+    onStyleChange({
+      bgMode: 'custom_media',
+      customBgUrl: objectUrl,
+      customBgType: mediaType,
+    });
+  };
 
   const aspectRatio = styleConfig.aspectRatio || '9:16';
   const dimensions = getDimensions(aspectRatio);
@@ -310,8 +326,108 @@ export const VideoStudioPreview: React.FC<Props> = ({
                   <option value="neon_waves" className="bg-[#1c1b1c]">⚡ Conic Wave Motion</option>
                   <option value="minimal_dark" className="bg-[#1c1b1c]">🖤 Obsidian Minimal</option>
                 </optgroup>
+
+                <optgroup label="🎨 Custom Media Upload" className="bg-[#1c1b1c] text-[#e9c400]">
+                  <option value="custom_media" className="bg-[#1c1b1c]">🖼️ / 🎥 Custom Image or Video Upload</option>
+                </optgroup>
               </select>
             </div>
+
+            {/* ── Custom Media Upload & URL Controls Box ── */}
+            {styleConfig.bgMode === 'custom_media' && (
+              <div className="col-span-1 sm:col-span-2 p-4 rounded-xl bg-[#131314] border border-[#ffb692]/40 space-y-3 shadow-lg">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-[#ffb692] flex items-center gap-1.5">
+                    <Upload className="w-4 h-4 text-[#ffb692]" /> Custom Background Media (Image or Video)
+                  </span>
+                  <div className="flex items-center gap-1.5">
+                    <button
+                      type="button"
+                      onClick={() => onStyleChange({ customBgType: 'image' })}
+                      className={`px-2.5 py-1 rounded-lg text-[10px] font-semibold border cursor-pointer transition-all ${
+                        (styleConfig.customBgType || 'image') === 'image'
+                          ? 'bg-[#ffb692]/20 text-[#ffb692] border-[#ffb692]/40'
+                          : 'bg-[#1c1b1c] text-[#dec0b3]/60 border-[rgba(87,66,56,0.3)] hover:bg-[#2a2a2b]'
+                      }`}
+                    >
+                      🖼️ Image
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => onStyleChange({ customBgType: 'video' })}
+                      className={`px-2.5 py-1 rounded-lg text-[10px] font-semibold border cursor-pointer transition-all ${
+                        styleConfig.customBgType === 'video'
+                          ? 'bg-[#ffb692]/20 text-[#ffb692] border-[#ffb692]/40'
+                          : 'bg-[#1c1b1c] text-[#dec0b3]/60 border-[rgba(87,66,56,0.3)] hover:bg-[#2a2a2b]'
+                      }`}
+                    >
+                      🎥 Video Loop
+                    </button>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {/* File Upload Zone */}
+                  <div>
+                    <label className="block text-[10px] text-[#dec0b3]/80 font-medium mb-1">
+                      Upload Local File (.png, .jpg, .mp4, .webm)
+                    </label>
+                    <label className="flex items-center justify-center gap-2 px-3 py-2 rounded-xl bg-[#1c1b1c] hover:bg-[#2a2a2b] border border-dashed border-[#ffb692]/40 text-xs font-semibold text-[#e5e2e3] cursor-pointer transition-all">
+                      <Upload className="w-3.5 h-3.5 text-[#ffb692]" />
+                      <span>{styleConfig.customBgUrl ? 'Change File' : 'Browse Local Image / Video'}</span>
+                      <input
+                        type="file"
+                        accept="image/*,video/mp4,video/webm,video/quicktime"
+                        onChange={handleCustomFileUpload}
+                        className="hidden"
+                      />
+                    </label>
+                  </div>
+
+                  {/* Direct Media URL Input */}
+                  <div>
+                    <label className="block text-[10px] text-[#dec0b3]/80 font-medium mb-1">
+                      Or Direct Media URL
+                    </label>
+                    <div className="flex items-center gap-1.5">
+                      <Link className="w-3.5 h-3.5 text-[#dec0b3]/60 shrink-0" />
+                      <input
+                        type="text"
+                        placeholder="https://example.com/meditation.mp4"
+                        value={styleConfig.customBgUrl || ''}
+                        onChange={(e) => {
+                          const url = e.target.value;
+                          const isVideo = Boolean(url.match(/\.(mp4|webm|mov|m4v)(\?.*)?$/i));
+                          setLastDownloadUrl(null);
+                          onStyleChange({
+                            bgMode: 'custom_media',
+                            customBgUrl: url,
+                            customBgType: isVideo ? 'video' : (styleConfig.customBgType || 'image'),
+                          });
+                        }}
+                        className="w-full glass-input rounded-xl px-2.5 py-1.5 text-xs font-mono text-[#e5e2e3]"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {styleConfig.customBgUrl && (
+                  <div className="flex items-center justify-between text-[11px] text-[#dec0b3]/90 bg-[#1c1b1c] px-3 py-1.5 rounded-lg border border-[rgba(87,66,56,0.3)]">
+                    <span className="truncate max-w-[85%] font-mono text-[10px] flex items-center gap-1">
+                      <span className="text-[#ffb692] font-semibold">Active Background:</span>
+                      <span className="truncate text-[#e5e2e3]">{styleConfig.customBgUrl}</span>
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => onStyleChange({ customBgUrl: '', bgMode: 'img_forest' })}
+                      className="text-rose-400 hover:text-rose-300 font-bold ml-2 cursor-pointer text-xs"
+                    >
+                      Remove
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
 
             {/* Kinetic Highlight Color */}
             <div>

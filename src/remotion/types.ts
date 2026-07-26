@@ -19,7 +19,8 @@ export type BgModeType =
   | 'img_forest'
   | 'img_ocean'
   | 'img_zen'
-  | 'img_cosmic';
+  | 'img_cosmic'
+  | 'custom_media';
 
 export type AspectRatioType = '9:16' | '16:9' | '16:9_4k' | '1:1';
 
@@ -50,6 +51,8 @@ export interface VideoStyleConfig {
   watermarkText: string;
   testMode15s?: boolean;
   overlayConfig?: OverlayConfig;
+  customBgUrl?: string;
+  customBgType?: 'image' | 'video';
 }
 
 export interface VerticalReelProps {

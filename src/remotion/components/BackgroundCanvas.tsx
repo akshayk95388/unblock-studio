@@ -1,9 +1,11 @@
 import React from 'react';
-import { useCurrentFrame, interpolate, useVideoConfig, Img, staticFile } from 'remotion';
+import { useCurrentFrame, interpolate, useVideoConfig, Img, OffthreadVideo, staticFile } from 'remotion';
 import { BgModeType } from '../types';
 
 interface Props {
   mode: BgModeType;
+  customBgUrl?: string;
+  customBgType?: 'image' | 'video';
 }
 
 const IMAGE_PATHS: Record<string, string> = {
@@ -13,7 +15,7 @@ const IMAGE_PATHS: Record<string, string> = {
   img_cosmic: 'backgrounds/calm_cosmic.jpg',
 };
 
-export const BackgroundCanvas: React.FC<Props> = ({ mode }) => {
+export const BackgroundCanvas: React.FC<Props> = ({ mode, customBgUrl, customBgType }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
@@ -46,7 +48,58 @@ export const BackgroundCanvas: React.FC<Props> = ({ mode }) => {
     [25, 75]
   );
 
-  // Render Image Backgrounds
+  // Render Custom Uploaded Image or Video Background
+  if (mode === 'custom_media' && customBgUrl) {
+    const isVideo = customBgType === 'video' || Boolean(customBgUrl.match(/\.(mp4|webm|mov|m4v)(\?.*)?$/i));
+    return (
+      <div
+        style={{
+          position: 'absolute',
+          inset: 0,
+          backgroundColor: '#0a0d14',
+          overflow: 'hidden',
+        }}
+      >
+        {isVideo ? (
+          <OffthreadVideo
+            src={customBgUrl}
+            muted
+            style={{
+              position: 'absolute',
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover',
+            }}
+          />
+        ) : (
+          <Img
+            src={customBgUrl}
+            style={{
+              position: 'absolute',
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover',
+              transform: `scale(${imageScale})`,
+              transition: 'transform 0.1s linear',
+            }}
+          />
+        )}
+        {/* Soft Vignette Overlay for maximum subtitle readability */}
+        <div
+          style={{
+            position: 'absolute',
+            inset: 0,
+            background: `
+              radial-gradient(circle at 50% 50%, rgba(19, 19, 20, 0.45) 0%, rgba(19, 19, 20, 0.75) 85%),
+              linear-gradient(180deg, rgba(19, 19, 20, 0.6) 0%, transparent 25%, transparent 75%, rgba(19, 19, 20, 0.8) 100%)
+            `,
+          }}
+        />
+      </div>
+    );
+  }
+
+  // Render Preset Image Backgrounds
   if (IMAGE_PATHS[mode]) {
     const imageSrc = staticFile(IMAGE_PATHS[mode]);
     return (
