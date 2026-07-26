@@ -105,7 +105,6 @@ export const BackgroundCanvas: React.FC<Props> = ({
               objectPosition,
               transformOrigin,
               transform: `scale(${userScale * imageScale}) translate(${panX / userScale}%, ${panY / userScale}%)`,
-              transition: 'transform 0.1s linear',
             }}
           />
         )}
@@ -144,7 +143,6 @@ export const BackgroundCanvas: React.FC<Props> = ({
             height: '100%',
             objectFit: 'cover',
             transform: `scale(${imageScale})`,
-            transition: 'transform 0.1s linear',
           }}
         />
         {/* Soft Vignette Overlay for maximum subtitle readability */}

@@ -43,7 +43,6 @@ export const AudioWaveform: React.FC<Props> = ({
               backgroundColor: color,
               opacity,
               boxShadow: `0 0 10px ${color}aa`,
-              transition: 'height 0.1s ease',
             }}
           />
         );

@@ -55,7 +55,7 @@ export const KineticSubtitles: React.FC<Props> = ({ subtitles, styleConfig }) =>
         left: '60px',
         right: '60px',
         top: styleConfig.captionPosition === 'center' ? '45%' : '65%',
-        transform: `translateY(-50%) scale(${lineScale})`,
+        transform: `translateY(-50%) scale(${lineScale}) translateZ(0)`,
         opacity: lineOpacity,
         display: 'flex',
         flexWrap: 'wrap',
@@ -67,11 +67,19 @@ export const KineticSubtitles: React.FC<Props> = ({ subtitles, styleConfig }) =>
       }}
     >
       {words.map((w, i) => {
-        const isWordActive = currentMs >= w.start_ms && currentMs <= w.end_ms;
-        const isWordPassed = currentMs > w.end_ms;
+        const wStartFrame = Math.round((w.start_ms / 1000) * fps);
+        const nextWord = words[i + 1];
+        const rawEndFrame = Math.round((w.end_ms / 1000) * fps);
+        // Ensure seamless word transitions with 0 gap between consecutive words
+        const wEndFrame = nextWord
+          ? Math.max(wStartFrame, Math.min(rawEndFrame, Math.round((nextWord.start_ms / 1000) * fps) - 1))
+          : rawEndFrame;
+
+        const isWordActive = frame >= wStartFrame && (frame <= wEndFrame || (i === words.length - 1 && currentMs <= currentLine.end_ms));
+        const isWordPassed = frame > wEndFrame;
 
         // Word pop animation
-        const wordFrame = frame - Math.floor((w.start_ms / 1000) * fps);
+        const wordFrame = frame - wStartFrame;
         const wordPop = isWordActive
           ? spring({
               frame: Math.max(0, wordFrame),
@@ -80,7 +88,9 @@ export const KineticSubtitles: React.FC<Props> = ({ subtitles, styleConfig }) =>
             })
           : 0;
 
-        const wordScale = isWordActive ? interpolate(wordPop, [0, 1], [1, 1.15]) : 1;
+        const wordScale = isWordActive
+          ? interpolate(wordPop, [0, 1], [1, 1.15], { extrapolateRight: 'clamp' })
+          : 1;
 
         return (
           <span
@@ -96,8 +106,8 @@ export const KineticSubtitles: React.FC<Props> = ({ subtitles, styleConfig }) =>
                 : isWordPassed
                 ? '#e5e2e3'
                 : 'rgba(229, 226, 227, 0.45)',
-              transform: `scale(${wordScale})`,
-              transition: 'color 0.15s ease, transform 0.15s ease',
+              transform: `scale(${wordScale}) translateZ(0)`,
+              willChange: 'transform',
               textShadow: isWordActive
                 ? `0 0 28px ${styleConfig.highlightColor || '#ffb692'}aa, 0 4px 12px rgba(0,0,0,0.9)`
                 : '0 4px 12px rgba(0,0,0,0.8)',
