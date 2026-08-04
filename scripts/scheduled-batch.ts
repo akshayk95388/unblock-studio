@@ -21,7 +21,7 @@ async function runDailyBatch() {
     const payload = await fetchAudioAndSubtitles({
       stressor: topic,
       durationCategory: 'quick',
-      voice: 'gentle_female',
+      voice: 'calm_female',
     });
 
     if (payload) {

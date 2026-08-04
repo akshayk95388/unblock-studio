@@ -23,9 +23,9 @@ export const GeneratorSection: React.FC<Props> = ({
   setIsLoading,
 }) => {
   const [stressor, setStressor] = useState(PRESET_STRESSORS[0]);
-  const [presetMode, setPresetMode] = useState<'guided' | 'unblock_reel'>('guided');
+  const [presetMode, setPresetMode] = useState<'unblock_reel' | 'guided'>('unblock_reel');
   const [durationCategory, setDurationCategory] = useState<'quick' | 'deep'>('quick');
-  const [voice, setVoice] = useState('gentle_female');
+  const [voice, setVoice] = useState('calm_female');
   const [music, setMusic] = useState('ambient_meditation');
 
   // Live polling state
@@ -275,26 +275,6 @@ export const GeneratorSection: React.FC<Props> = ({
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
           <button
             type="button"
-            onClick={() => setPresetMode('guided')}
-            className={`p-3.5 rounded-xl border text-left transition-all cursor-pointer flex flex-col justify-between ${
-              presetMode === 'guided'
-                ? 'bg-[#ffb692]/15 border-[#ffb692] text-[#ffb692] shadow-lg shadow-[#ffb692]/10'
-                : 'bg-[#1c1b1c] border-[rgba(87,66,56,0.2)] text-[#dec0b3]/70 hover:border-[rgba(87,66,56,0.4)] hover:text-white'
-            }`}
-          >
-            <div className="flex items-center justify-between mb-1">
-              <span className="font-bold text-xs flex items-center gap-1.5 text-white">
-                🧘 Guided Meditation Session
-              </span>
-              {presetMode === 'guided' && <CheckCircle2 className="w-4 h-4 text-[#ffb692]" />}
-            </div>
-            <span className="text-[11px] text-[#dec0b3]/80 leading-relaxed">
-              Standard calm meditation session format (preset omitted)
-            </span>
-          </button>
-
-          <button
-            type="button"
             onClick={() => setPresetMode('unblock_reel')}
             className={`p-3.5 rounded-xl border text-left transition-all cursor-pointer flex flex-col justify-between ${
               presetMode === 'unblock_reel'
@@ -310,6 +290,26 @@ export const GeneratorSection: React.FC<Props> = ({
             </div>
             <span className="text-[11px] text-[#dec0b3]/80 leading-relaxed">
               High-hook, high-virality social media reel format (<code className="text-[#ffb692]">preset: "unblock_reel"</code>)
+            </span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setPresetMode('guided')}
+            className={`p-3.5 rounded-xl border text-left transition-all cursor-pointer flex flex-col justify-between ${
+              presetMode === 'guided'
+                ? 'bg-[#ffb692]/15 border-[#ffb692] text-[#ffb692] shadow-lg shadow-[#ffb692]/10'
+                : 'bg-[#1c1b1c] border-[rgba(87,66,56,0.2)] text-[#dec0b3]/70 hover:border-[rgba(87,66,56,0.4)] hover:text-white'
+            }`}
+          >
+            <div className="flex items-center justify-between mb-1">
+              <span className="font-bold text-xs flex items-center gap-1.5 text-white">
+                🧘 Guided Meditation Session
+              </span>
+              {presetMode === 'guided' && <CheckCircle2 className="w-4 h-4 text-[#ffb692]" />}
+            </div>
+            <span className="text-[11px] text-[#dec0b3]/80 leading-relaxed">
+              Standard calm meditation session format (preset omitted)
             </span>
           </button>
         </div>
@@ -384,9 +384,8 @@ export const GeneratorSection: React.FC<Props> = ({
             onChange={(e) => setVoice(e.target.value)}
             className="w-full glass-input rounded-lg px-3 py-2 text-xs"
           >
-            <option value="gentle_female" className="bg-[#1c1b1c]">Gentle Female</option>
-            <option value="calm_male" className="bg-[#1c1b1c]">Calm Male</option>
-            <option value="warm_storyteller" className="bg-[#1c1b1c]">Warm Storyteller</option>
+            <option value="calm_female" className="bg-[#1c1b1c]">Calm Female</option>
+            <option value="warm_male" className="bg-[#1c1b1c]">Warm Male</option>
           </select>
         </div>
 

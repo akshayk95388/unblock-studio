@@ -11,10 +11,10 @@ interface BatchItem {
 }
 
 const DEFAULT_BATCH_ITEMS: BatchItem[] = [
-  { id: '1', stressor: 'Imposter syndrome before presenting to leadership', voice: 'gentle_female', status: 'completed', renderTimeSec: 4.2, outputFile: 'reels/imposter_syndrome.mp4' },
-  { id: '2', stressor: 'Late-night anxiety checking Slack messages', voice: 'calm_male', status: 'completed', renderTimeSec: 3.8, outputFile: 'reels/late_night_slack.mp4' },
-  { id: '3', stressor: 'Desk fatigue and posture slump after 4 hours', voice: 'warm_storyteller', status: 'queued' },
-  { id: '4', stressor: 'Procrastination paralysis before launching product', voice: 'gentle_female', status: 'queued' },
+  { id: '1', stressor: 'Imposter syndrome before presenting to leadership', voice: 'calm_female', status: 'completed', renderTimeSec: 4.2, outputFile: 'reels/imposter_syndrome.mp4' },
+  { id: '2', stressor: 'Late-night anxiety checking Slack messages', voice: 'warm_male', status: 'completed', renderTimeSec: 3.8, outputFile: 'reels/late_night_slack.mp4' },
+  { id: '3', stressor: 'Desk fatigue and posture slump after 4 hours', voice: 'calm_female', status: 'queued' },
+  { id: '4', stressor: 'Procrastination paralysis before launching product', voice: 'warm_male', status: 'queued' },
 ];
 
 export const BatchQueue: React.FC = () => {
@@ -29,7 +29,7 @@ export const BatchQueue: React.FC = () => {
       {
         id: String(Date.now()),
         stressor: newStressor,
-        voice: 'gentle_female',
+        voice: 'calm_female',
         status: 'queued',
       },
     ]);

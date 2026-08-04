@@ -26,7 +26,7 @@ export async function fetchAudioAndSubtitles(options: FetchOptions) {
       body: JSON.stringify({
         stressor: options.stressor,
         duration_category: options.durationCategory || 'quick',
-        voice: options.voice || 'gentle_female',
+        voice: options.voice || 'calm_female',
         music: options.music || 'none',
         include_words_ts: true,
       }),
