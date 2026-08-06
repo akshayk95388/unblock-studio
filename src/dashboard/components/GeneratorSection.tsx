@@ -26,7 +26,7 @@ export const GeneratorSection: React.FC<Props> = ({
   const [presetMode, setPresetMode] = useState<'unblock_reel' | 'guided'>('unblock_reel');
   const [durationCategory, setDurationCategory] = useState<'quick' | 'deep'>('quick');
   const [voice, setVoice] = useState('calm_female');
-  const [music, setMusic] = useState('ambient_meditation');
+  const [music, setMusic] = useState('meditation_impromptu');
 
   // Live polling state
   const [stageMessage, setStageMessage] = useState<string>('');
@@ -384,8 +384,8 @@ export const GeneratorSection: React.FC<Props> = ({
             onChange={(e) => setVoice(e.target.value)}
             className="w-full glass-input rounded-lg px-3 py-2 text-xs"
           >
-            <option value="calm_female" className="bg-[#1c1b1c]">Calm Female</option>
-            <option value="warm_male" className="bg-[#1c1b1c]">Warm Male</option>
+            <option value="calm_female" className="bg-[#1c1b1c]">Aria · Calm</option>
+            <option value="warm_male" className="bg-[#1c1b1c]">Kai · Warm</option>
           </select>
         </div>
 
@@ -398,9 +398,9 @@ export const GeneratorSection: React.FC<Props> = ({
             onChange={(e) => setMusic(e.target.value)}
             className="w-full glass-input rounded-lg px-3 py-2 text-xs"
           >
-            <option value="ambient_meditation" className="bg-[#1c1b1c]">Ambient Drone</option>
-            <option value="rain_lofi" className="bg-[#1c1b1c]">Cosmic Rain</option>
             <option value="none" className="bg-[#1c1b1c]">Voice Only</option>
+            <option value="meditation_impromptu" className="bg-[#1c1b1c]">Ambient Synth</option>
+            <option value="flute" className="bg-[#1c1b1c]">Serene Flute</option>
           </select>
         </div>
       </div>

@@ -83,7 +83,7 @@ export const BackgroundCanvas: React.FC<Props> = ({
         {isVideo ? (
           <OffthreadVideo
             src={customBgUrl}
-            muted
+            volume={0}
             style={{
               position: 'absolute',
               width: '100%',
